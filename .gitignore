@@ -1,1 +1,6 @@
 *~
+*.eln
+/eln-cache/
+/elpaca/
+/parinfer-rust/
+/places

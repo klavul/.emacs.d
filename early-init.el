@@ -1,4 +1,4 @@
-1;;; -*- lexical-binding: t -*-
+;;; -*- lexical-binding: t -*-
 (setq-default lexical-binding t)
 
 ;;; Package

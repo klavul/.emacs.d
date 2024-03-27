@@ -2,7 +2,7 @@
 ;;;; Emit
 ;; Why do you need a macro that defines anonymous function so often? What's the deal with Named Builder?
 ;; (setup  (:p emit :host github :repo "IvanMalison/emit"))
-;;; Typography
+;;; Display
 ;;;; Modus themes
 (setup (:p modus-themes)
   (modus-themes-select 'modus-operandi))
@@ -21,8 +21,12 @@
           auto-dark-light-theme 'modus-operandi)
   (auto-dark-mode))
   
+;;;; Echo line
+(setup (:p mini-echo)
+  (mini-echo-mode))
 ;;;; Outli
 ;; TODO: prettify, looks ugly..
+;; TODO: fix imenu
 (setup (:p outli :host github :repo "jdtsmith/outli") (:require outli)
        (:hook-into prog-mode)
        (setopt outli-default-nobar t))
@@ -76,94 +80,139 @@
 (setup (:p meow)
   (require 'meow)
   (defun my-meow-setup ()
-     (meow-motion-overwrite-define-key
-      '("n" . meow-next)
-      '("a" . meow-prev)
-      '("<escape>" . ignore))
-     (meow-leader-define-key
-      ;; SPC j/k will run the original command in MOTION state.
-      '("n" . "H-n")
-      '("a" . "H-a")
-      ;; Use SPC (0-9) for digit arguments.
-      '("1" . meow-digit-argument)
-      '("2" . meow-digit-argument)
-      '("3" . meow-digit-argument)
-      '("4" . meow-digit-argument)
-      '("5" . meow-digit-argument)
-      '("6" . meow-digit-argument)
-      '("7" . meow-digit-argument)
-      '("8" . meow-digit-argument)
-      '("9" . meow-digit-argument)
-      '("0" . meow-digit-argument)
-      '("/" . meow-keypad-describe-key)
-      '("?" . meow-cheatsheet))
-     (meow-normal-define-key
-      '("0" . meow-expand-0)
-      '("9" . meow-expand-9)
-      '("8" . meow-expand-8)
-      '("7" . meow-expand-7)
-      '("6" . meow-expand-6)
-      '("5" . meow-expand-5)
-      '("4" . meow-expand-4)
-      '("3" . meow-expand-3)
-      '("2" . meow-expand-2)
-      '("1" . meow-expand-1)
-      '("-" . negative-argument)
-      '("i" . meow-reverse)
-      '("'" . meow-inner-of-thing)
-      '(";" . meow-bounds-of-thing)
-      '("[" . meow-beginning-of-thing)
-      '("]" . meow-end-of-thing)
-      '("p" . meow-append)
-      '("P" . meow-open-below)
-      '("b" . meow-back-word)
-      '("B" . meow-back-symbol)
-      '("c" . meow-change)
-      '("d" . meow-delete)
-      '("D" . meow-backward-delete)
-      '("e" . meow-next-word)
-      '("E" . meow-next-symbol)
-      '("f" . meow-find)
-      '("g" . meow-cancel-selection)
-      '("G" . meow-grab)
-      '("." . meow-left)
-      '(">" . meow-left-expand)
-      '("i" . meow-insert)
-      '("I" . meow-open-above)
-      '("n" . meow-next)
-      '("N" . meow-next-expand)
-      '("a" . meow-prev)
-      '("A" . meow-prev-expand)
-      '("l" . meow-right)
-      '("L" . meow-right-expand)
-      '("m" . meow-join)
-      '("h" . meow-search)
-      '("o" . meow-block)
-      '("O" . meow-to-block)
-      '("j" . meow-yank)
-      '("q" . meow-quit)
-      '("Q" . meow-goto-line)
-      '("r" . meow-replace)
-      '("R" . meow-swap-grab)
-      '("s" . meow-kill)
-      '("t" . meow-till)
-      '("u" . meow-undo)
-      '("U" . meow-undo-in-selection)
-      '("v" . meow-visit)
-      '("w" . meow-mark-word)
-      '("W" . meow-mark-symbol)
-      '("x" . meow-line)
-      '("X" . meow-goto-line)
-      '("y" . meow-save)
-      '("Y" . meow-sync-grab)
-      '("z" . meow-pop-selection)
-      '("/" . repeat)
-      '("<escape>" . ignore)))
-  (my-meow-setup)
+    (keymap-unset meow-normal-state-keymap "i")
+    (meow-thing-register 'angle
+                     '(pair ("<") (">"))
+                     '(pair ("<") (">")))
+   (setq meow-char-thing-table
+         '((?f . round)
+           (?d . square)
+           (?s . curly)
+           (?a . angle)
+           (?r . string)
+           (?v . paragraph)
+           (?c . line)
+           (?x . buffer)))
+   (meow-motion-overwrite-define-key
+    '("n" . meow-next)
+    '("a" . meow-prev)
+    '("<escape>" . ignore))
+   (meow-leader-define-key
+    ;; SPC j/k will run the original command in MOTION state.
+    '("n" . "H-n")
+    '("a" . "H-a")
+    ;; Use SPC (0-9) for digit arguments.
+    '("1" . meow-digit-argument)
+    '("2" . meow-digit-argument)
+    '("3" . meow-digit-argument)
+    '("4" . meow-digit-argument)
+    '("5" . meow-digit-argument)
+    '("6" . meow-digit-argument)
+    '("7" . meow-digit-argument)
+    '("8" . meow-digit-argument)
+    '("9" . meow-digit-argument)
+    '("0" . meow-digit-argument)
+    '("/" . meow-keypad-describe-key)
+    '("?" . meow-cheatsheet))
+   (meow-define-keys 'normal
+ ; expansion
+    '("0" . meow-expand-0)
+    '("1" . meow-expand-1)
+    '("2" . meow-expand-2)
+    '("3" . meow-expand-3)
+    '("4" . meow-expand-4)
+    '("5" . meow-expand-5)
+    '("6" . meow-expand-6)
+    '("7" . meow-expand-7)
+    '("8" . meow-expand-8)
+    '("9" . meow-expand-9)
+    '("/" . meow-reverse)
 
+ ; movement
+    '("s-n" . meow-prev)
+    '("n" . meow-next)
+    '("s-a" . meow-left)
+    '("a" . meow-right)
+
+    '("x" . meow-search)
+    '("," . meow-visit)
+
+ ; expansion
+    '("s-N" . meow-prev-expand)
+    '("N" . meow-next-expand)
+    '("S-A" . meow-left-expand)
+    '("A" . meow-right-expand)
+
+    '("f" . meow-back-word)
+    '("F" . meow-back-symbol)
+    '("u" . meow-next-word)
+    '("U" . meow-next-symbol)
+
+    '("s" . meow-mark-word)
+    '("S" . meow-mark-symbol)
+    '("t" . meow-line)
+    '("T" . meow-goto-line)
+    '("m" . meow-block)
+    '("v" . meow-join)
+    '("g" . meow-grab)
+    '("G" . meow-pop-grab)
+    '("h" . meow-swap-grab)
+    '("H" . meow-sync-grab)
+    '("j" . meow-cancel-selection)
+    '("J" . meow-pop-selection)
+
+    '("k" . meow-till)
+    '("z" . meow-find)
+
+    '("'" . meow-beginning-of-thing)
+    '(";" . meow-end-of-thing)
+    '("\"" . meow-inner-of-thing)
+    '(":" . meow-bounds-of-thing)
+
+ ; editing
+    '("r" . meow-kill)
+    '("d" . meow-change)
+    '("p" . meow-delete)
+    '("q" . meow-save)
+    '("y" . meow-yank)
+    '("Y" . meow-yank-pop)
+
+    '("l" . meow-insert)
+    '("L" . meow-open-above)
+    '("c" . meow-append)
+    '("C" . meow-open-below)
+
+    '("." . undo-only)
+    '(">" . undo-redo)
+
+    '("w" . open-line)
+    '("W" . split-line)
+
+    '("[" . indent-rigidly-left-to-tab-stop)
+    '("]" . indent-rigidly-right-to-tab-stop)
+
+ ; prefix n
+    '("bd" . meow-comment)
+    '("bp" . meow-start-kmacro-or-insert-counter)
+    '("bc" . meow-start-kmacro)
+    '("bl" . meow-end-or-call-kmacro)
+ ;; ...etc
+
+ ; prefix ;
+    '("id" . save-buffer)
+    '("iD" . save-some-buffers)
+    '("ir" . meow-query-replace-regexp)
+ ;; ... etc
+
+ ; ignore escape
+    '("<escape>" . ignore)))
+  
+  (my-meow-setup)
+   
   (meow-global-mode t))
  
-
+;;;; General
+;; anondrdleauatrrmhaqrgrdtendrtanedtnrndaretodalurjtte
 ;;; Language
 ;;;; Rust
 ;; (use-package rustic
@@ -214,12 +263,15 @@
 
 ;;; Eshell
 ;; golly those long-running commands, hide them away from me, or I'd spend all my waking life waiting for them to complete (guix...)
+;;; Org
+;;;; Pomodoro
 
 ;;; WinSanity
 ;;;; Undo
 (winner-mode)
 ;;;; Activities
-(setup (:p activities :local-repo "~/s/e/activities")) 
+(setup (:p activities :local-repo "~/s/e/activities"))
+   
 
 ;;;; Burly
 (setup (:p burly :host github :repo "alphapapa/burly.el")
